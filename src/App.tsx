@@ -142,6 +142,7 @@ function App() {
             analysis={analysis} 
             aiInsights={aiInsights || undefined}
             aiLoading={aiLoading}
+            onBack={handleBack}
           />
         </div>
       ) : null;

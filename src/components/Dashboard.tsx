@@ -10,12 +10,14 @@ interface DashboardProps {
   analysis: RepositoryAnalysis;
   aiInsights?: AIInsightsType;
   aiLoading?: boolean;
+  onBack?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
   analysis, 
   aiInsights, 
-  aiLoading = false 
+  aiLoading = false,
+  onBack
 }) => {
   if (!analysis.repository) {
     return null;
@@ -24,13 +26,16 @@ const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="dashboard">
       <div className="dashboard-container">
-        {/* Demo Mode Notification */}
-        <div className="demo-notification">
-          <div className="demo-icon">🔄</div>
-          <div className="demo-content">
-            <p><strong>Demo Mode Active:</strong> Using cached/sample data due to network connectivity. The app is fully functional for demonstration purposes.</p>
+        {/* Back Button */}
+        {onBack && (
+          <div className="dashboard-header">
+            <button onClick={onBack} className="back-to-search-button">
+              <span className="back-arrow">←</span>
+              <span>Back to Search</span>
+            </button>
           </div>
-        </div>
+        )}
+        
         {/* Repository Overview */}
         <StatisticsCard repository={analysis.repository} />
 
