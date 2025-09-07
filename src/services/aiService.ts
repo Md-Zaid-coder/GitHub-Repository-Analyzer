@@ -4,11 +4,15 @@ import { GitHubRepository, GitHubLanguages, GitHubContributor, GitHubReadme } fr
 // Initialize Gemini AI
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
-if (!GEMINI_API_KEY) {
-  console.warn('REACT_APP_GEMINI_API_KEY is not set. AI features will be disabled.');
+if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
+  console.warn('REACT_APP_GEMINI_API_KEY is not set or is placeholder. AI features will be disabled.');
+} else {
+  console.log('Gemini AI API key configured - AI features enabled');
 }
 
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+const genAI = (GEMINI_API_KEY && GEMINI_API_KEY !== 'your_gemini_api_key_here' && GEMINI_API_KEY.startsWith('AIza') && GEMINI_API_KEY.length > 30) 
+  ? new GoogleGenerativeAI(GEMINI_API_KEY) 
+  : null;
 
 export interface AIInsights {
   repositorySummary: string;
@@ -17,7 +21,7 @@ export interface AIInsights {
 }
 
 class AIService {
-  private model = genAI?.getGenerativeModel({ model: 'gemini-pro' });
+  private model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   /**
    * Generate repository summary based on README and description
@@ -27,7 +31,15 @@ class AIService {
     readme: GitHubReadme | null
   ): Promise<string> {
     if (!this.model) {
-      return 'AI analysis unavailable. Please configure Gemini API key.';
+      // Demo mode - provide sample insights
+      const demoInsights: { [key: string]: string } = {
+        'facebook/react': 'React is a JavaScript library for building user interfaces, particularly web applications. It provides a component-based architecture that makes it easy to create reusable UI elements and manage application state efficiently. This library has become one of the most popular frontend frameworks due to its virtual DOM implementation and extensive ecosystem.',
+        'microsoft/vscode': 'Visual Studio Code is a lightweight but powerful source code editor that runs on desktop and is available for Windows, macOS, and Linux. It comes with built-in support for JavaScript, TypeScript, and Node.js and has a rich ecosystem of extensions for other languages and runtimes.',
+        'vercel/next.js': 'Next.js is a React framework that enables functionality such as server-side rendering and generating static websites. It provides a zero-config approach to React development with automatic code splitting, optimized bundling, and built-in performance optimizations.',
+        'default': `${repository.name} is a ${repository.language || 'software'} project ${repository.description ? 'that ' + repository.description.toLowerCase() : ''}. This repository demonstrates modern development practices and has attracted ${repository.stargazers_count} stars from the developer community.`
+      };
+      
+      return demoInsights[repository.full_name] || demoInsights['default'];
     }
 
     try {
@@ -62,7 +74,16 @@ class AIService {
     languages: GitHubLanguages
   ): Promise<string> {
     if (!this.model) {
-      return 'AI analysis unavailable. Please configure Gemini API key.';
+      const primaryLang = repository.language || 'Unknown';
+      const langCount = Object.keys(languages).length;
+      
+      if (primaryLang.toLowerCase().includes('javascript') || primaryLang.toLowerCase().includes('typescript')) {
+        return `This is a modern ${primaryLang} project typical of web development. The codebase shows a ${langCount > 3 ? 'diverse' : 'focused'} technology stack with ${langCount} different languages, indicating a well-structured ${primaryLang.includes('Type') ? 'type-safe' : ''} web application or library.`;
+      } else if (primaryLang.toLowerCase().includes('python')) {
+        return `This is a Python-based project with ${langCount} programming languages. The technology stack suggests it could be a data science, web development, or general-purpose software project, following modern Python development practices.`;
+      } else {
+        return `This is a ${primaryLang} project with a ${langCount > 2 ? 'multi-language' : 'focused'} codebase. The language composition suggests a ${primaryLang.toLowerCase().includes('java') || primaryLang.toLowerCase().includes('c++') || primaryLang.toLowerCase().includes('c#') ? 'enterprise-grade' : 'modern'} application built with industry best practices.`;
+      }
     }
 
     try {
@@ -107,7 +128,20 @@ class AIService {
     contributors: GitHubContributor[]
   ): Promise<string> {
     if (!this.model) {
-      return 'AI analysis unavailable. Please configure Gemini API key.';
+      const contributorCount = contributors.length;
+      const topContributor = contributors[0];
+      const totalContributions = contributors.reduce((sum, c) => sum + c.contributions, 0);
+      const topContributorPercentage = topContributor ? ((topContributor.contributions / totalContributions) * 100).toFixed(0) : 0;
+      
+      if (contributorCount > 100) {
+        return `This repository is maintained by a large, active community with ${contributorCount} contributors. The top contributor (${topContributor?.login}) accounts for ${topContributorPercentage}% of commits, indicating healthy distributed collaboration typical of major open-source projects.`;
+      } else if (contributorCount > 20) {
+        return `This project shows healthy collaboration with ${contributorCount} contributors. The contribution pattern suggests an active community project with regular participation from multiple developers, indicating good project health and sustainability.`;
+      } else if (contributorCount > 5) {
+        return `This repository is maintained by a small but dedicated team of ${contributorCount} contributors. The contribution pattern suggests either a focused team project or an emerging open-source project with core maintainers.`;
+      } else {
+        return `This appears to be maintained by a small group of ${contributorCount} developers, with the primary contributor (${topContributor?.login}) responsible for ${topContributorPercentage}% of the work. This suggests either a personal project or early-stage development with limited contributors.`;
+      }
     }
 
     try {

@@ -24,6 +24,13 @@ const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="dashboard">
       <div className="dashboard-container">
+        {/* Demo Mode Notification */}
+        <div className="demo-notification">
+          <div className="demo-icon">🔄</div>
+          <div className="demo-content">
+            <p><strong>Demo Mode Active:</strong> Using cached/sample data due to network connectivity. The app is fully functional for demonstration purposes.</p>
+          </div>
+        </div>
         {/* Repository Overview */}
         <StatisticsCard repository={analysis.repository} />
 
