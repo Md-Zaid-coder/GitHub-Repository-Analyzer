@@ -5,7 +5,7 @@
 
 A sophisticated Progressive Web App that provides deep, AI-driven insights into any public GitHub repository. Built with React 19, TypeScript, and powered by Google Gemini AI with comprehensive PWA features.
 
-![GitHub Repository Analyzer](https://via.placeholder.com/800x400/667eea/ffffff?text=GitHub+Repository+Analyzer+PWA)
+![GitHub Repository Analyzer](https://md-zaid-coder.github.io/GitHub-Repository-Analyzer)
 
 ## ✨ Features
 
@@ -43,7 +43,7 @@ A sophisticated Progressive Web App that provides deep, AI-driven insights into 
 
 ## 🚀 Live Demo
 
-### 🌐 **[Visit the Live App](https://github-repository-analyzer.vercel.app)**
+### 🌐 **[https://md-zaid-coder.github.io/GitHub-Repository-Analyzer)**
 
 ### 📱 **Installation**
 - **Desktop**: Click the install icon in your browser address bar
