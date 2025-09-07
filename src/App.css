@@ -761,51 +761,209 @@ input:focus {
 }
 
 .insights-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-title {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.insights-title {
   color: #1f2937;
   font-size: 1.75rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 0.5rem 0;
 }
 
-.insights-icon {
+.section-icon {
   font-size: 2rem;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.section-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+  font-style: italic;
 }
 
 .insights-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .insight-card {
-  background: #f9fafb;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.insight-title {
+.insight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.insight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0.3;
+}
+
+.card-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #374151;
-  font-size: 1.125rem;
-  font-weight: 600;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.insight-content {
+.card-icon {
+  font-size: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid currentColor;
+}
+
+.card-title {
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card-content {
+  position: relative;
+}
+
+.insight-text {
   color: #4b5563;
   line-height: 1.6;
   font-size: 0.95rem;
+  margin: 0;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.loading-shimmer {
+  height: 1rem;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.loading-shimmer.short {
+  width: 70%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.ai-disclaimer {
+  margin-top: 2rem;
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.disclaimer-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.disclaimer-content {
+  flex: 1;
+}
+
+.disclaimer-text {
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.disclaimer-text strong {
+  color: #334155;
+}
+
+/* Color variations for insight cards */
+.bg-blue-50 {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.border-blue-200 {
+  border-color: #bfdbfe;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.bg-purple-50 {
+  background: #faf5ff;
+  color: #7c3aed;
+}
+
+.border-purple-200 {
+  border-color: #d8b4fe;
+}
+
+.text-purple-600 {
+  color: #9333ea;
+}
+
+.bg-green-50 {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.border-green-200 {
+  border-color: #bbf7d0;
+}
+
+.text-green-600 {
+  color: #16a34a;
 }
 
 .loading-insight {
@@ -1588,6 +1746,35 @@ input:focus {
 
 .chart-wrapper:hover {
   transform: scale(1.02);
+}
+
+/* Demo Notification Styles */
+.demo-notification {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1);
+}
+
+.demo-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.demo-content p {
+  color: #92400e;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.demo-content strong {
+  color: #78350f;
 }
 
 /* Dark theme adaptations */

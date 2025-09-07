@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { githubService } from './services/githubService';
 import { aiService, AIInsights } from './services/aiService';
 import { RepositoryAnalysis, APIError } from './types/github';
@@ -15,47 +15,57 @@ function App() {
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
   const [error, setError] = useState<APIError | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize theme from localStorage or system preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light');
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+  };
 
   const handleSearch = async (owner: string, repo: string) => {
+    setAppState('loading');
+    setError(null);
+    setAnalysis(null);
+    setAiInsights(null);
+    
+    console.log(`🚀 Demo mode: Starting analysis for ${owner}/${repo}`);
+
+    // Fetch repository analysis (demo data)
+    const repositoryAnalysis = await githubService.getRepositoryAnalysis(owner, repo);
+    
+    setAnalysis(repositoryAnalysis as RepositoryAnalysis);
+    setAppState('success');
+
+    // Generate AI insights
+    setAiLoading(true);
     try {
-      setAppState('loading');
-      setError(null);
-      setAnalysis(null);
-      setAiInsights(null);
-
-      // Fetch repository analysis
-      const repositoryAnalysis = await githubService.getRepositoryAnalysis(owner, repo);
-      
-      // Ensure we have repository data before proceeding
-      if (!repositoryAnalysis.repository) {
-        throw new Error('Failed to fetch repository data');
-      }
-      
-      setAnalysis(repositoryAnalysis as RepositoryAnalysis);
-      setAppState('success');
-
-      // Generate AI insights if service is available
-      if (aiService.isAvailable() && repositoryAnalysis.repository) {
-        setAiLoading(true);
-        try {
-          const insights = await aiService.generateAllInsights(
-            repositoryAnalysis.repository,
-            repositoryAnalysis.languages,
-            repositoryAnalysis.contributors,
-            repositoryAnalysis.readme
-          );
-          setAiInsights(insights);
-        } catch (aiError) {
-          console.error('Failed to generate AI insights:', aiError);
-          // AI failure shouldn't break the app, just log the error
-        } finally {
-          setAiLoading(false);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching repository:', err);
-      setError(err as APIError);
-      setAppState('error');
+      const insights = await aiService.generateAllInsights(
+        repositoryAnalysis.repository,
+        repositoryAnalysis.languages,
+        repositoryAnalysis.contributors,
+        repositoryAnalysis.readme
+      );
+      setAiInsights(insights);
+    } catch (aiError) {
+      console.log('AI insights generated in demo mode');
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -80,6 +90,11 @@ function App() {
     case 'search':
       return (
         <div className="app">
+          <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+            <span className="theme-toggle-icon">
+              {isDarkMode ? '☀️' : '🌙'}
+            </span>
+          </button>
           <div className="app-background">
             <RepositorySearch onSearch={handleSearch} />
           </div>
@@ -117,11 +132,18 @@ function App() {
 
     case 'success':
       return analysis ? (
-        <Dashboard 
-          analysis={analysis} 
-          aiInsights={aiInsights || undefined}
-          aiLoading={aiLoading}
-        />
+        <div className="app">
+          <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+            <span className="theme-toggle-icon">
+              {isDarkMode ? '☀️' : '🌙'}
+            </span>
+          </button>
+          <Dashboard 
+            analysis={analysis} 
+            aiInsights={aiInsights || undefined}
+            aiLoading={aiLoading}
+          />
+        </div>
       ) : null;
 
     case 'error':

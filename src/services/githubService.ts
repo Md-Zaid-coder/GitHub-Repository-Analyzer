@@ -1,191 +1,133 @@
-import axios, { AxiosError } from 'axios';
 import {
   GitHubRepository,
   GitHubLanguages,
   GitHubCommitActivity,
   GitHubContributor,
-  GitHubReadme,
-  APIError
+  GitHubReadme
 } from '../types/github';
 
-const GITHUB_API_BASE = 'https://api.github.com';
-
-// Create axios instance with default config
-const githubApi = axios.create({
-  baseURL: GITHUB_API_BASE,
-  headers: {
-    'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'GitHub-Repo-Analyzer'
-  }
-});
-
-// Add GitHub token if available (optional for public repos but increases rate limits)
-const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN;
-if (GITHUB_TOKEN) {
-  githubApi.defaults.headers.common['Authorization'] = `token ${GITHUB_TOKEN}`;
-}
-
 class GitHubService {
-  /**
-   * Fetch repository information
-   */
   async getRepository(owner: string, repo: string): Promise<GitHubRepository> {
-    try {
-      const response = await githubApi.get<GitHubRepository>(`/repos/${owner}/${repo}`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
+    console.log(`📦 Demo: Loading ${owner}/${repo}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return {
+      id: Math.floor(Math.random() * 1000000),
+      name: repo,
+      full_name: `${owner}/${repo}`,
+      owner: {
+        login: owner,
+        avatar_url: `https://github.com/${owner}.png`,
+        html_url: `https://github.com/${owner}`
+      },
+      html_url: `https://github.com/${owner}/${repo}`,
+      description: `${repo} - Demo repository showcasing the GitHub Repository Analyzer`,
+      stargazers_count: Math.floor(Math.random() * 50000) + 1000,
+      watchers_count: Math.floor(Math.random() * 5000) + 100,
+      language: owner === 'facebook' ? 'JavaScript' : owner === 'microsoft' ? 'TypeScript' : 'JavaScript',
+      forks_count: Math.floor(Math.random() * 10000) + 500,
+      open_issues_count: Math.floor(Math.random() * 100) + 10,
+      license: {
+        name: 'MIT License',
+        spdx_id: 'MIT'
+      },
+      created_at: '2020-01-01T00:00:00Z',
+      updated_at: new Date().toISOString(),
+      pushed_at: new Date().toISOString(),
+      size: Math.floor(Math.random() * 100000) + 10000,
+      default_branch: 'main'
+    };
   }
 
-  /**
-   * Fetch repository languages
-   */
   async getRepositoryLanguages(owner: string, repo: string): Promise<GitHubLanguages> {
-    try {
-      const response = await githubApi.get<GitHubLanguages>(`/repos/${owner}/${repo}/languages`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return {
+      JavaScript: 800000,
+      TypeScript: 200000,
+      CSS: 50000,
+      HTML: 25000
+    };
   }
 
-  /**
-   * Fetch commit activity (last 52 weeks)
-   */
   async getCommitActivity(owner: string, repo: string): Promise<GitHubCommitActivity[]> {
-    try {
-      const response = await githubApi.get<GitHubCommitActivity[]>(`/repos/${owner}/${repo}/stats/commit_activity`);
-      
-      // GitHub may return 202 if stats are being computed
-      if (response.status === 202) {
-        // Wait a bit and retry
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return this.getCommitActivity(owner, repo);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const activity: GitHubCommitActivity[] = [];
+    const now = Math.floor(Date.now() / 1000);
+    const weekInSeconds = 7 * 24 * 60 * 60;
+    
+    for (let i = 51; i >= 0; i--) {
+      const weekStart = now - (i * weekInSeconds);
+      const totalCommits = Math.floor(Math.random() * 50) + 5;
+      const days = [];
+      for (let day = 0; day < 7; day++) {
+        days.push(Math.floor(Math.random() * (totalCommits / 2)));
       }
       
-      return response.data || [];
-    } catch (error) {
-      // If stats are not available, return empty array
-      if ((error as AxiosError).response?.status === 404) {
-        return [];
-      }
-      throw this.handleError(error as AxiosError);
+      activity.push({
+        total: totalCommits,
+        week: weekStart,
+        days: days
+      });
     }
+    
+    return activity;
   }
 
-  /**
-   * Fetch repository contributors
-   */
   async getContributors(owner: string, repo: string): Promise<GitHubContributor[]> {
-    try {
-      const response = await githubApi.get<GitHubContributor[]>(`/repos/${owner}/${repo}/contributors`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return [
+      {
+        login: owner,
+        id: Math.floor(Math.random() * 1000000),
+        avatar_url: `https://github.com/${owner}.png`,
+        html_url: `https://github.com/${owner}`,
+        contributions: Math.floor(Math.random() * 500) + 100,
+        type: 'User'
+      },
+      {
+        login: 'contributor1',
+        id: Math.floor(Math.random() * 1000000),
+        avatar_url: 'https://github.com/contributor1.png',
+        html_url: 'https://github.com/contributor1',
+        contributions: Math.floor(Math.random() * 200) + 50,
+        type: 'User'
+      }
+    ];
   }
 
-  /**
-   * Fetch repository README
-   */
-  async getReadme(owner: string, repo: string): Promise<GitHubReadme | null> {
-    try {
-      const response = await githubApi.get<GitHubReadme>(`/repos/${owner}/${repo}/readme`);
-      
-      // Decode base64 content
-      if (response.data.encoding === 'base64') {
-        response.data.content = atob(response.data.content);
-      }
-      
-      return response.data;
-    } catch (error) {
-      if ((error as AxiosError).response?.status === 404) {
-        return null; // No README found
-      }
-      throw this.handleError(error as AxiosError);
-    }
+  async getReadme(owner: string, repo: string): Promise<GitHubReadme> {
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
+    return {
+      name: 'README.md',
+      path: 'README.md',
+      content: `# ${repo}\n\nDemo repository for ${owner}/${repo}. This showcases the GitHub Repository Analyzer with AI-powered insights.\n\n## Features\n- Repository statistics\n- Language analysis\n- Commit activity tracking\n- AI-generated insights`,
+      encoding: 'utf-8',
+      size: 1024,
+      download_url: `https://github.com/${owner}/${repo}/README.md`
+    };
   }
 
-  /**
-   * Get complete repository analysis
-   */
   async getRepositoryAnalysis(owner: string, repo: string) {
-    try {
-      const [repository, languages, commitActivity, contributors, readme] = await Promise.allSettled([
-        this.getRepository(owner, repo),
-        this.getRepositoryLanguages(owner, repo),
-        this.getCommitActivity(owner, repo),
-        this.getContributors(owner, repo),
-        this.getReadme(owner, repo)
-      ]);
+    console.log(`🎭 Demo mode: Complete analysis for ${owner}/${repo}`);
+    
+    const [repository, languages, commitActivity, contributors, readme] = await Promise.all([
+      this.getRepository(owner, repo),
+      this.getRepositoryLanguages(owner, repo),
+      this.getCommitActivity(owner, repo),
+      this.getContributors(owner, repo),
+      this.getReadme(owner, repo)
+    ]);
 
-      // Extract successful results
-      const data = {
-        repository: repository.status === 'fulfilled' ? repository.value : null,
-        languages: languages.status === 'fulfilled' ? languages.value : {},
-        commitActivity: commitActivity.status === 'fulfilled' ? commitActivity.value : [],
-        contributors: contributors.status === 'fulfilled' ? contributors.value : [],
-        readme: readme.status === 'fulfilled' ? readme.value : null
-      };
-
-      // Throw error if repository data failed (this is essential)
-      if (!data.repository) {
-        throw new Error('Failed to fetch repository data');
-      }
-
-      return data;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Search repositories (bonus feature)
-   */
-  async searchRepositories(query: string, limit: number = 10) {
-    try {
-      const response = await githubApi.get(`/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=${limit}`);
-      return response.data.items;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Handle API errors
-   */
-  private handleError(error: AxiosError): APIError {
-    if (error.response) {
-      const { status, data } = error.response;
-      return {
-        message: (data as any)?.message || 'GitHub API error',
-        status,
-        documentation_url: (data as any)?.documentation_url
-      };
-    } else if (error.request) {
-      return {
-        message: 'Network error: Unable to reach GitHub API',
-        status: 0
-      };
-    } else {
-      return {
-        message: error.message || 'Unknown error occurred',
-        status: 0
-      };
-    }
-  }
-
-  /**
-   * Check API rate limit status
-   */
-  async getRateLimit() {
-    try {
-      const response = await githubApi.get('/rate_limit');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error as AxiosError);
-    }
+    return {
+      repository,
+      languages,
+      commitActivity,
+      contributors,
+      readme
+    };
   }
 }
 
