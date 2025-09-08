@@ -478,10 +478,21 @@ input:focus {
   font-size: 1.5rem;
   font-weight: 700;
   transition: color 0.2s;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .repo-link:hover {
   color: #2563eb;
+}
+
+/* Dark mode repository title */
+[data-theme="dark"] .repo-link {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .repo-link:hover {
+  color: #60a5fa !important;
 }
 
 .language-badge {
@@ -497,6 +508,7 @@ input:focus {
   color: #6b7280;
   margin-bottom: 0.75rem;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 .repo-meta {
@@ -505,6 +517,18 @@ input:focus {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 500;
+}
+
+/* Dark mode text improvements */
+[data-theme="dark"] .repo-description {
+  color: #cbd5e1 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .repo-meta {
+  color: #94a3b8 !important;
+  font-weight: 500;
 }
 
 .owner-info {
@@ -575,12 +599,25 @@ input:focus {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 0.25rem;
+  color: #1f2937;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .stat-label {
   color: #6b7280;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+/* Dark mode stat values and labels */
+[data-theme="dark"] .stat-value {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .stat-label {
+  color: #cbd5e1 !important;
+  font-weight: 600;
 }
 
 .text-yellow-600 {
@@ -671,6 +708,7 @@ input:focus {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .chart-icon {
@@ -681,6 +719,18 @@ input:focus {
   color: #6b7280;
   font-size: 0.875rem;
   margin: 0;
+  font-weight: 500;
+}
+
+/* Dark mode chart titles */
+[data-theme="dark"] .chart-title {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .chart-subtitle {
+  color: #cbd5e1 !important;
+  font-weight: 500;
 }
 
 .chart-container {
@@ -824,6 +874,7 @@ input:focus {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .section-icon {
@@ -845,6 +896,18 @@ input:focus {
   font-size: 0.95rem;
   margin: 0;
   font-style: italic;
+  font-weight: 500;
+}
+
+/* Dark mode section titles */
+[data-theme="dark"] .section-title {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .section-subtitle {
+  color: #cbd5e1 !important;
+  font-weight: 500;
 }
 
 .insights-grid {
@@ -902,6 +965,13 @@ input:focus {
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode card titles */
+[data-theme="dark"] .card-title {
+  color: #f1f5f9 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .card-content {
